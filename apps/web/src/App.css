@@ -44,3 +44,26 @@ body { margin: 0; font-family: system-ui, sans-serif; }
 .condition { font-size: 1.25rem; margin: 0; }
 .place { margin: 0.75rem 0 0.25rem; opacity: 0.9; }
 .daynight { margin: 0; opacity: 0.75; font-size: 0.9rem; }
+.matches { margin-top: 1.5rem; width: 100%; max-width: 420px; }
+.matches p { margin: 0 0 0.5rem; opacity: 0.85; font-size: 0.9rem; }
+.matches ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.matches button {
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.matches button:hover { background: rgba(255, 255, 255, 0.28); }
+.matches button.active { background: rgba(255, 255, 255, 0.35); font-weight: 600; }

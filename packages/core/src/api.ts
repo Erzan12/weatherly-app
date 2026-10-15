@@ -41,29 +41,42 @@ interface GeocodingResponse {
   }>;
 }
 
-export async function searchCity(
+/** Returns up to `count` matching places, best match first. Empty array if none. */
+export async function searchCities(
   query: string,
+  count = 5,
   signal?: AbortSignal
-): Promise<City> {
+): Promise<City[]> {
   const name = query.trim();
-  if (!name) throw new CityNotFoundError(query);
+  if (!name) return [];
 
-  const params = new URLSearchParams({ name, count: "1", language: "en" });
+  const params = new URLSearchParams({
+    name,
+    count: String(count),
+    language: "en",
+  });
   const data = await getJson<GeocodingResponse>(
     `${GEOCODING_URL}?${params}`,
     signal
   );
 
-  const hit = data.results?.[0];
-  if (!hit) throw new CityNotFoundError(name);
-
-  return {
+  return (data.results ?? []).map((hit) => ({
     name: hit.name,
     country: hit.country ?? "",
     region: hit.admin1,
     latitude: hit.latitude,
     longitude: hit.longitude,
-  };
+  }));
+}
+
+/** Best single match, or throws CityNotFoundError. */
+export async function searchCity(
+  query: string,
+  signal?: AbortSignal
+): Promise<City> {
+  const [first] = await searchCities(query, 1, signal);
+  if (!first) throw new CityNotFoundError(query);
+  return first;
 }
 
 interface ForecastResponse {
@@ -103,13 +116,12 @@ export async function getCurrentWeather(
   };
 }
 
-/** One call for the apps: city name in, everything the UI needs out. */
-export async function getWeatherByCity(
-  query: string,
+/** Weather for a city you already have (e.g. picked from the match list). */
+export async function getWeatherForCity(
+  city: City,
   unit: TemperatureUnit = "celsius",
   signal?: AbortSignal
 ): Promise<WeatherResult> {
-  const city = await searchCity(query, signal);
   const weather = await getCurrentWeather(
     city.latitude,
     city.longitude,
@@ -121,4 +133,14 @@ export async function getWeatherByCity(
     weather,
     info: weatherCodeToInfo(weather.weatherCode, weather.isDay),
   };
+}
+
+/** City name in, best-match weather out. */
+export async function getWeatherByCity(
+  query: string,
+  unit: TemperatureUnit = "celsius",
+  signal?: AbortSignal
+): Promise<WeatherResult> {
+  const city = await searchCity(query, signal);
+  return getWeatherForCity(city, unit, signal);
 }
