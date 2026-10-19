@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "@weather/core": "*",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "@weather/core": "*"
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
